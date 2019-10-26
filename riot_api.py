@@ -51,7 +51,7 @@ def getAllInfo(region, summonerName, summonerID, matchID, APIKey):
     
     #access API for all relevant files
     match_JSON = getMatch(region, matchID, APIKey)
-    participantId = [player['participantId'] for player in match_JSON['participantIdentities'] if player['player'][summonerId] == summonerID]
+    participantId = [player['participantId'] for player in match_JSON['participantIdentities'] if player['player'][summonerId] == summonerID].pop()
     
     #get winrate
     winrate = getWinrate(region, summonerName, summonerID, APIKey)
@@ -82,7 +82,7 @@ def main():
 
     responseJSON = getSummonerData(region, summonerName, APIKey)
     accountID = responseJSON['accountId']
-    summonerID = responseJSON['Id']
+    summonerID = responseJSON['id']
     
     match_history_JSON = getMatchHistory(region, accountID, APIKey)
     recent_match = match_history_JSON['matches'][0]
@@ -92,6 +92,7 @@ def main():
 
     teammates = []
     for summoner_name in summoner_names:
+        summonerID = getSummonerData(region, summoner_name, APIKey)['id']
         teammates.append(getAllInfo(region, summoner_name, summonerID, matchID, APIKey))
     
     '''
