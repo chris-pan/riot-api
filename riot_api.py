@@ -23,7 +23,10 @@ def getSummoners(region, summonerName_list, APIKey):
 
 def getKDA(match, participantId):
     stats = match['participants'][participantId-1]["stats"]
-    return round((stats['kills'] + stats['assists'])/ stats['deaths'] * 100) / 100
+    deaths = stats['deaths']
+    if not deaths:
+        deaths = 1
+    return round((stats['kills'] + stats['assists'])/ deaths * 100) / 100
 
 def main():
     region = (str(input('Choose region from following: ru, kr, br1, oc1, jp1, na1, eun1, euw1, tr1, la1, la2\n')))
