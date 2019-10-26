@@ -23,7 +23,7 @@ def getSummoners(region, summonerName_list, APIKey):
 
 def main():
     region = (str(input('Choose region from following: ru, kr, br1, oc1, jp1, na1, eun1, euw1, tr1, la1, la2\n')))
-    summonerName = str(input('Enter summoner name without spaces\n'))
+    summonerName = str(input('Enter summoner name\n'))
     APIKey = str(input('Enter API Key\n'))
 
     responseJSON = getSummonerData(region, summonerName, APIKey)
