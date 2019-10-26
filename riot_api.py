@@ -45,6 +45,38 @@ def getChampionMastery(region, champID, summonerName, summonerID, APIKey):
     response = requests.get(URL).json()
     return response['championLevel']
 
+
+def calcJungleProximity(frames, playerID, junglerID):
+    near = 0
+    for f in frames:
+        playerx = f['participantFrames'][str(playerID)]['position']['x']
+        playery = f['participantFrames'][str(playerID)]['position']['y']
+        junglerx = f['participantFrames'][str(junglerID)]['position']['x']
+        junglery = f['participantFrames'][str(junglerID)]['position']['y']
+        if ((playerx-junglerx)**2 + (playery-junglery)**2) ** (1/2) < 2500:
+            near +=1
+    return near * 100 // len(frames) / 100
+
+def getJungleProximitytoPlayer(match, matchTimeline, participantID):
+    player_jungler = 0
+    enemy_jungler = 0
+    for i in range(5):
+        if match['participants'][i]['timeline']['lane'] == 'JUNGLE':
+            player_jungler = i+1
+    for i in range(5, 10):
+        if match['participants'][i]['timeline']['lane'] == 'JUNGLE':
+            enemy_jungler = i+1
+    if participantID > 5:
+        player_jungler, enemy_jungler = enemy_jungler, player_jungler
+    
+    #make list of frames between 3 minutes and 15 minutes
+    relevant_frames= [frame for frame in matchTimeline['frames'] if frame['timestamp'] >= 180000 and frame['timestamp']<= 900000]
+    
+    my_jungler= calcJungleProximity(relevant_frames, participantID, player_jungler)
+    their_jungler = calcJungleProximity(relevant_frames, participantID, enemy_jungler)
+    return my_jungler, their_jungler
+
+
 #print all relevant information (in function) and return if player is "good" or "bad"
 def getAllInfo(region, summonerName, summonerID, match_JSON, match_timeline_JSON, APIKey):
     good_or_bad = 'none'
@@ -56,6 +88,10 @@ def getAllInfo(region, summonerName, summonerID, match_JSON, match_timeline_JSON
     #get KDA
     KDA = getKDA(match_JSON, participantId)
     print(KDA)
+    
+    #jungle proximity (yours, enemy)
+    jungle_proximity= getJungleProximitytoPlayer(match_JSON, match_timeline_JSON, participantID)
+    print(jungle_proximity)
     #compare self gold to opponent gold
 
     #cs/min
