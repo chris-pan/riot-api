@@ -21,6 +21,10 @@ def getSummoners(region, summonerName_list, APIKey):
         summoners[summonerName] = getSummonerData(region, summonerName, APIKey)
     return summoners
 
+def getKDA(match, participantId):
+    stats = match['participants'][participantId-1]["stats"]
+    return round((stats['kills'] + stats['assists'])/ stats['deaths'] * 100) / 100
+
 def main():
     region = (str(input('Choose region from following: ru, kr, br1, oc1, jp1, na1, eun1, euw1, tr1, la1, la2\n')))
     summonerName = str(input('Enter summoner name\n'))
@@ -41,6 +45,11 @@ def main():
         print(summoner_names)
         summoners = getSummoners(region, summoner_names, APIKey)
         summoners.pop(summonerName)
+        
+        #kda
+        participantId = 0
+        print(getKDA(match_JSON, participantId))
+        
         #get some data for each player e.g. winrates, hotstreak(?), champion mastery/winrate, 
         #ingame data (can be found in match_JSON) such as KDA, wards placed, etc
         #also can use champion matchup data
