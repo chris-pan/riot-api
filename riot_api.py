@@ -46,11 +46,8 @@ def getChampionMastery(region, champID, summonerName, summonerID, APIKey):
     return response['championLevel']
 
 #print all relevant information (in function) and return if player is "good" or "bad"
-def getAllInfo(region, summonerName, summonerID, matchID, APIKey):
+def getAllInfo(region, summonerName, summonerID, match_JSON, match_timeline_JSON, APIKey):
     good_or_bad = 'none'
-    
-    #access API for all relevant files
-    match_JSON = getMatch(region, matchID, APIKey)
     participantId = [player['participantId'] for player in match_JSON['participantIdentities'] if player['player'][summonerId] == summonerID].pop()
     
     #get winrate
@@ -88,12 +85,14 @@ def main():
     recent_match = match_history_JSON['matches'][0]
     matchID = str(recent_match['gameId'])
     match_JSON = getMatch(region, matchID, APIKey)
+    match_timeline_JSON = getMatchTimeline(region, matchID, APIKey)
+    
     summoner_names = [player['player']['summonerName'] for player in match_JSON['participantIdentities']]
 
     teammates = []
     for summoner_name in summoner_names:
         summonerID = getSummonerData(region, summoner_name, APIKey)['id']
-        teammates.append(getAllInfo(region, summoner_name, summonerID, matchID, APIKey))
+        teammates.append(getAllInfo(region, summoner_name, summonerID, match_JSON, match_timeline_JSON, APIKey))
     
     '''
     Cases: 
