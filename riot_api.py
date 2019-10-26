@@ -48,11 +48,17 @@ def getChampionMastery(region, champID, summonerName, summonerID, APIKey):
 #print all relevant information (in function) and return if player is "good" or "bad"
 def getAllInfo(region, summonerName, summonerID, matchID, APIKey):
     good_or_bad = 'none'
+    
+    #access API for all relevant files
+    match_JSON = getMatch(region, matchID, APIKey)
+    participantId = [player['participantId'] for player in match_JSON['participantIdentities'] if player['player'][summonerId] == summonerID]
+    
     #get winrate
     winrate = getWinrate(region, summonerName, summonerID, APIKey)
     print(winrate)
     #get KDA
-    KDA = getKDA(region, summonerName, matchID, APIKey)
+    KDA = getKDA(match_JSON, participantId)
+    print(KDA)
     #compare self gold to opponent gold
 
     #cs/min
