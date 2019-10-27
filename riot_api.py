@@ -75,9 +75,8 @@ def getJungleProximitytoPlayer(match, matchTimeline, participantID):
 
 
 #print all relevant information (in function) and return if player is "good" or "bad"
-def getAllInfo(region, summonerName, summonerID, match_JSON, match_timeline_JSON, APIKey):
+def getAllInfo(region, summonerName, summonerID, participantId, match_JSON, match_timeline_JSON, APIKey):
     good_or_bad = 'none'
-    participantId = [player['participantId'] for player in match_JSON['participantIdentities'] if player['player']['summonerId'] == summonerID].pop()
     champID = match_JSON['participants'][participantId-1]['championId']
     
     print(summonerName)
@@ -104,6 +103,7 @@ def getAllInfo(region, summonerName, summonerID, match_JSON, match_timeline_JSON
     #others?
     
     print()
+    good_or_bad = True
     return good_or_bad
 
 def main():
@@ -127,25 +127,51 @@ def main():
     matchID = str(recent_match['gameId'])
     match_JSON = getMatch(region, matchID, APIKey)
     match_timeline_JSON = getMatchTimeline(region, matchID, APIKey)
+    participantId = [player['participantId'] for player in match_JSON['participantIdentities'] if player['player']['summonerId'] == summonerID].pop()
     
     summoner_names = [player['player']['summonerName'] for player in match_JSON['participantIdentities']]
 
     teammates = []
     for summoner_name in summoner_names:
         ID = getSummonerData(region, summoner_name, APIKey)['id']
-        teammates.append(getAllInfo(region, summoner_name, ID, match_JSON, match_timeline_JSON, APIKey))
+        teammates.append(getAllInfo(region, summoner_name, ID, participantId, match_JSON, match_timeline_JSON, APIKey))
     
-    '''
-    Cases: 
-    self is good and majority team is bad and lost: unlucky
-    self is good and majority team is good and lost: ???
-    self is good and majority team is bad and won: carried garbage
-    self is good and majority team is good and won: expected EZ Clap
-    self is bad and majority team is bad and lost: all garbage
-    self is bad and majority team is good and lost: you're garbage
-    self is bad and majority team is bad and won: ???
-    self is bad and majority team is good and won: got carried
-    '''
+    self_performance = teammates[participantId]
+    team_performance = 0
+    team = 0 if participantId < 6 else 1
+    for performance in range(team*5, team*5 + 5):
+        if teammates[performance]:
+            team_performance+=1
+        team_performance-=1
+    team_performance = team_performance > 0
+
+    game = match_JSON['teams'][team]['win'] == 'Win'
+    
+    print(self_performance, team_performance, game)
+
+    #cases
+    if self_performance:
+        if team_performance:
+            if game:
+                print('expected EZ Clappo')
+            else:
+                print('you guys threw')
+        else:
+            if game:
+                print('carried garbage')
+            else:
+                print('team sucks')
+    else:
+        if team_performance:
+            if game:
+                print('you got carried')
+            else:
+                print("you're garbage")
+        else:
+            if game:
+                print('how did you win this game')
+            else:
+                print('you all garbage')
 
     #get some data for each player e.g. winrates, hotstreak(?), champion mastery/winrate, 
     #ingame data (can be found in match_JSON) such as KDA, wards placed, etc
