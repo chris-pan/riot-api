@@ -112,6 +112,7 @@ def main():
     summonerName = str(input('Enter summoner name\n'))
     APIKey = str(input('Enter API Key\n'))
     '''
+    #test
     region = 'na1'
     summonerName = 'princeash'
     APIKey = 'RGAPI-bb17d5f9-195f-4ea3-bad8-69b329517204'
