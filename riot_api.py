@@ -172,7 +172,7 @@ def main():
     teammates.remove(min(teammates))
 
     self_performance_bool = self_performance in teammates
-    team_performance_bool = team_performance - self_performance > other_performance
+    team_performance_bool = team_performance - self_performance > 0
     print("your team's performance:", team_performance)
     print("other team's performance:", other_performance)
     game = match_JSON['teams'][team]['win'] == 'Win'
