@@ -36,8 +36,8 @@ def getKDA(match, participantId):
 def getWinrate(region, summonerName, summonerID, APIKey):
     URL = 'https://' + region + '.api.riotgames.com/lol/league/v4/entries/by-summoner/' + summonerID + '?api_key=' + APIKey
     response = requests.get(URL).json()
-    wins = [x['wins'] for x in response if x['queueType'] == 'RANKED_SOLO_5x5'].pop()
-    losses = [x['losses'] for x in response if x['queueType'] == 'RANKED_SOLO_5x5'].pop()
+    wins = [x['wins'] for x in response if x['queueType'] == 'RANKED_SOLO_5x5'][0]
+    losses = [x['losses'] for x in response if x['queueType'] == 'RANKED_SOLO_5x5'][0]
     return wins / (wins + losses)
 
 def getChampionMastery(region, champID, summonerName, summonerID, APIKey):
@@ -99,17 +99,11 @@ def getAllInfo(region, summonerName, summonerID, OG_participantId, participantId
     #get winrate
     winrate = int(getWinrate(region, summonerName, summonerID, APIKey) * 1000)/10.0
     print('winrate:', str(winrate) + '%')
-    if winrate > 50.0:
-        good_or_bad += 1
-    else:
-        good_or_bad -= 1
+    good_or_bad += (winrate - 50) / 10.0
     #get KDA
     KDA = getKDA(match_JSON, participantId)
     print('KDA:', KDA)
-    if KDA > 2.0:
-        good_or_bad += 1
-    else:
-        good_or_bad -= 1
+    good_or_bad += (KDA - 2.0)
     #jungle proximity (yours, enemy)
     jungle_proximity= getJungleProximitytoPlayer(match_JSON, match_timeline_JSON, participantId)
     print('jungle proximity (your jg, enemy jg):', jungle_proximity)
@@ -123,12 +117,10 @@ def getAllInfo(region, summonerName, summonerID, OG_participantId, participantId
     #get champ mastery of champ
     mastery = getChampionMastery(region, champID, summonerName, summonerID, APIKey) 
     print('champion mastery:', mastery)
-    if mastery > 3:
-        good_or_bad += 1
-    else:
-        good_or_bad -= 1
+    good_or_bad += mastery - 4
     #others?
     
+    print('score:', good_or_bad)
     print()
     return good_or_bad >= 0
 
@@ -160,7 +152,7 @@ def main():
 
     teammates = []
     for summoner_name in summoner_names:
-        #print(summoner_name) for testing 
+        #print(summoner_name)
         ID = getSummonerData(region, summoner_name, APIKey)['id']
         participantId = [player['participantId'] for player in match_JSON['participantIdentities'] if player['player']['summonerId'] == ID].pop()
         teammates.append(getAllInfo(region, summoner_name, ID, OG_participantId, participantId, match_JSON, match_timeline_JSON, APIKey))
