@@ -31,7 +31,7 @@ def getKDA(match, participantId):
     deaths = stats['deaths']
     if not deaths:
         deaths = 1
-    return round((stats['kills'] + stats['assists'])/ deaths * 100) / 100
+    return round((stats['kills'] + stats['assists'])/ deaths * 100) / 100.0
 
 def getWinrate(region, summonerName, summonerID, APIKey):
     URL = 'https://' + region + '.api.riotgames.com/lol/league/v4/entries/by-summoner/' + summonerID + '?api_key=' + APIKey
@@ -41,7 +41,9 @@ def getWinrate(region, summonerName, summonerID, APIKey):
 def getChampionMastery(region, champID, summonerName, summonerID, APIKey):
     URL = 'https://' + region + '.api.riotgames.com/lol/champion-mastery/v4/champion-masteries/by-summoner/' + summonerID + '/by-champion/' + str(champID) + '?api_key=' + APIKey
     response = requests.get(URL).json()
-    return response['championLevel']
+    if 'championLevel' in response:
+        return response['championLevel'] 
+    return 0
 
 def calcJungleProximity(frames, playerID, junglerID):
     near = 0
@@ -114,8 +116,8 @@ def main():
     '''
     #test
     region = 'na1'
-    summonerName = 'princeash'
-    APIKey = 'RGAPI-bb17d5f9-195f-4ea3-bad8-69b329517204'
+    summonerName = 'hoodc'
+    APIKey = 'RGAPI-a340c2a0-c330-4555-88ab-f60112cd52d7'
 
 
     responseJSON = getSummonerData(region, summonerName, APIKey)
