@@ -99,11 +99,11 @@ def getAllInfo(region, summonerName, summonerID, OG_participantId, participantId
     #get winrate
     winrate = int(getWinrate(region, summonerName, summonerID, APIKey) * 1000)/10.0
     print('winrate:', str(winrate) + '%')
-    good_or_bad += (winrate - 50) / 10.0
+    good_or_bad += (winrate - 50) / 5.0
     #get KDA
     KDA = getKDA(match_JSON, participantId)
     print('KDA:', KDA)
-    good_or_bad += (KDA - 2.0) / 5.0
+    good_or_bad += (KDA - 2.0)
     #jungle proximity (yours, enemy)
     jungle_proximity= getJungleProximitytoPlayer(match_JSON, match_timeline_JSON, participantId)
     print('jungle proximity (your jg, enemy jg):', jungle_proximity)
@@ -117,7 +117,7 @@ def getAllInfo(region, summonerName, summonerID, OG_participantId, participantId
     #get champ mastery of champ
     mastery = getChampionMastery(region, champID, summonerName, summonerID, APIKey) 
     print('champion mastery:', mastery)
-    good_or_bad += (mastery - 4) / 10.0
+    good_or_bad += (mastery - 4) / 3.0
     #others?
     good_or_bad = round(good_or_bad, 4)
     print('score:', good_or_bad)
