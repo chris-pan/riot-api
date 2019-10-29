@@ -103,7 +103,7 @@ def getAllInfo(region, summonerName, summonerID, OG_participantId, participantId
     #get KDA
     KDA = getKDA(match_JSON, participantId)
     print('KDA:', KDA)
-    good_or_bad += (KDA - 2.0)
+    good_or_bad += (KDA - 2.0) / 5.0
     #jungle proximity (yours, enemy)
     jungle_proximity= getJungleProximitytoPlayer(match_JSON, match_timeline_JSON, participantId)
     print('jungle proximity (your jg, enemy jg):', jungle_proximity)
@@ -117,12 +117,12 @@ def getAllInfo(region, summonerName, summonerID, OG_participantId, participantId
     #get champ mastery of champ
     mastery = getChampionMastery(region, champID, summonerName, summonerID, APIKey) 
     print('champion mastery:', mastery)
-    good_or_bad += mastery - 4
+    good_or_bad += (mastery - 4) / 10.0
     #others?
-    
+    good_or_bad = round(good_or_bad, 4)
     print('score:', good_or_bad)
     print()
-    return good_or_bad >= 0
+    return good_or_bad
 
 def main():
     '''
@@ -147,33 +147,32 @@ def main():
     match_timeline_JSON = getMatchTimeline(region, matchID, APIKey)
     OG_participantId = [player['participantId'] for player in match_JSON['participantIdentities'] if player['player']['summonerId'] == summonerID].pop()
     team = 0 if OG_participantId < 6 else 1
-
+    other = 1 if team == 0 else 0
     summoner_names = [player['player']['summonerName'] for player in match_JSON['participantIdentities']]
 
-    teammates = []
+    players = []
     for summoner_name in summoner_names:
         #print(summoner_name)
         ID = getSummonerData(region, summoner_name, APIKey)['id']
         participantId = [player['participantId'] for player in match_JSON['participantIdentities'] if player['player']['summonerId'] == ID].pop()
-        teammates.append(getAllInfo(region, summoner_name, ID, OG_participantId, participantId, match_JSON, match_timeline_JSON, APIKey))
+        players.append(getAllInfo(region, summoner_name, ID, OG_participantId, participantId, match_JSON, match_timeline_JSON, APIKey))
     
-    self_performance = teammates[OG_participantId-1]
-    team_performance = 0
+    self_performance_bool = players[OG_participantId-1] > 0
+    team_performance, other_performance = 0, 0
 
-    for performance in range(team*5, team*5 + 5):
-        if teammates[performance] > 0:
-            team_performance+=1
-        else:
-            team_performance-=1
-    team_performance = team_performance > 0
+    for i in range(team*5, team*5 + 5):
+        team_performance += players[i]
+    team_performance_bool = team_performance > 0
 
+    for i in range(other*5, other*5 + 5):
+        other_performance += players[i]
+    print("your team's performance:", team_performance)
+    print("other team's performance:", other_performance)
     game = match_JSON['teams'][team]['win'] == 'Win'
-    
-    #print(self_performance, team_performance, game)
 
     #cases
-    if self_performance:
-        if team_performance:
+    if self_performance_bool:
+        if team_performance_bool:
             if game:
                 print('expected EZ Clappo')
             else:
@@ -184,7 +183,7 @@ def main():
             else:
                 print('team sucks')
     else:
-        if team_performance:
+        if team_performance_bool:
             if game:
                 print('you got carried')
             else:
