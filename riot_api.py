@@ -160,7 +160,7 @@ def main():
 
     teammates = []
     for summoner_name in summoner_names:
-        print(summoner_name)
+        #print(summoner_name) for testing 
         ID = getSummonerData(region, summoner_name, APIKey)['id']
         participantId = [player['participantId'] for player in match_JSON['participantIdentities'] if player['player']['summonerId'] == ID].pop()
         teammates.append(getAllInfo(region, summoner_name, ID, OG_participantId, participantId, match_JSON, match_timeline_JSON, APIKey))
