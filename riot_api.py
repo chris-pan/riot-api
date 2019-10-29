@@ -129,16 +129,17 @@ def main():
     matchID = str(recent_match['gameId'])
     match_JSON = getMatch(region, matchID, APIKey)
     match_timeline_JSON = getMatchTimeline(region, matchID, APIKey)
-    participantId = [player['participantId'] for player in match_JSON['participantIdentities'] if player['player']['summonerId'] == summonerID].pop()
+    OGparticipantId = [player['participantId'] for player in match_JSON['participantIdentities'] if player['player']['summonerId'] == summonerID].pop()
     
     summoner_names = [player['player']['summonerName'] for player in match_JSON['participantIdentities']]
 
     teammates = []
     for summoner_name in summoner_names:
         ID = getSummonerData(region, summoner_name, APIKey)['id']
+        participantId = [player['participantId'] for player in match_JSON['participantIdentities'] if player['player']['summonerId'] == ID].pop()
         teammates.append(getAllInfo(region, summoner_name, ID, participantId, match_JSON, match_timeline_JSON, APIKey))
     
-    self_performance = teammates[participantId]
+    self_performance = teammates[OGparticipantId-1]
     team_performance = 0
     team = 0 if participantId < 6 else 1
     for performance in range(team*5, team*5 + 5):
