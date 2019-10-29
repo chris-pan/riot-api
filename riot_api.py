@@ -99,11 +99,11 @@ def getAllInfo(region, summonerName, summonerID, OG_participantId, participantId
     #get winrate
     winrate = int(getWinrate(region, summonerName, summonerID, APIKey) * 1000)/10.0
     print('winrate:', str(winrate) + '%')
-    good_or_bad += (winrate - 50) / 5.0
+    good_or_bad += (winrate - 50) / 10.0
     #get KDA
     KDA = getKDA(match_JSON, participantId)
     print('KDA:', KDA)
-    good_or_bad += (KDA - 2.0)
+    good_or_bad += (KDA - 1.5)
     #jungle proximity (yours, enemy)
     jungle_proximity= getJungleProximitytoPlayer(match_JSON, match_timeline_JSON, participantId)
     print('jungle proximity (your jg, enemy jg):', jungle_proximity)
@@ -157,15 +157,22 @@ def main():
         participantId = [player['participantId'] for player in match_JSON['participantIdentities'] if player['player']['summonerId'] == ID].pop()
         players.append(getAllInfo(region, summoner_name, ID, OG_participantId, participantId, match_JSON, match_timeline_JSON, APIKey))
     
-    self_performance_bool = players[OG_participantId-1] > 0
+    self_performance = players[OG_participantId-1]
     team_performance, other_performance = 0, 0
+   
+    teammates = players[team*5:team*5+5]
 
     for i in range(team*5, team*5 + 5):
         team_performance += players[i]
-    team_performance_bool = team_performance > 0
 
     for i in range(other*5, other*5 + 5):
         other_performance += players[i]
+
+    teammates.remove(min(teammates))
+    teammates.remove(min(teammates))
+
+    self_performance_bool = self_performance in teammates
+    team_performance_bool = team_performance - self_performance > other_performance
     print("your team's performance:", team_performance)
     print("other team's performance:", other_performance)
     game = match_JSON['teams'][team]['win'] == 'Win'
